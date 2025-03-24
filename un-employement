@@ -1,0 +1,29 @@
+import streamlit as st
+import pickle as pkl
+with open ("model.pkl","rb") as obj1:
+    model=pkl.load(obj1)
+def predict_unemployment(features):
+    prediction=model.predict([features])
+    return round(prediction[0],2)
+
+st.title("Unemployment Rate Predictor")
+st.write("Enter past unemployment data to predict the 2024 rate.")
+
+sex=st.selectbox("Sex",["Male","Female"])
+age_category=st.selectbox("Age Category",["Adults","Children","Youth"])
+for i in age_category:
+    if age_category=="Adults":
+         age_category=0
+    elif age_category=="Children":
+        age_category=1
+    elif age_category=="Youth":
+        age_category=2
+
+features=[sex,age_category]+[st.number_input(f"Year{year}",min_value=0.0,max_value=30.0) for year in range(2014,2024)]
+
+if st.button("Predict"):
+    sex_encoded= 0 if sex=="Female" else 1
+    age_encoded= 0 if age_category=="Adult" else 1 if age_category=="Children" else 2
+    features[0]=sex_encoded
+    result=predict_unemployment(features)
+    st.success(f"Predicted Unemployment Rate for 2024:{result}%")
